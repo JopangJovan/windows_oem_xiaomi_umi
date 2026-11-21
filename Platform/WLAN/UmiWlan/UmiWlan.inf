@@ -1,0 +1,25 @@
+[Defines]
+  INF_VERSION = 0x00010005
+  BASE_NAME = UmiWlan
+  FILE_GUID = 4C0B4280-891B-46F6-A07D-CFEA1BAE320E
+  MODULE_TYPE = UEFI_APPLICATION
+  VERSION_STRING = 1.0
+  ENTRY_POINT = UmiWlanMain
+[Sources]
+  UmiWlan.c
+  umi_pcie.c
+[Packages]
+  MdePkg/MdePkg.dec
+[LibraryClasses]
+  UefiApplicationEntryPoint
+  UefiBootServicesTableLib
+  UefiLib
+  IoLib
+  TimerLib
+  BaseLib
+  PrintLib
+  DevicePathLib
+  DebugLib
+[Protocols]
+  gEfiLoadedImageProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid

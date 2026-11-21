@@ -1,0 +1,27 @@
+--- Silicium-ACPI/Platforms/Xiaomi/umi/DSDT.wlan-msi-test.dsl	2026-11-20 18:23:19.010127119 +0700
++++ Silicium-ACPI/Platforms/Xiaomi/umi/DSDT.wlan-noncoherent.dsl	2026-11-20 20:13:45.076172590 +0700
+@@ -5,13 +5,13 @@
+  * 
+  * Disassembling to symbolic ASL+ operators
+  *
+- * Disassembly of /home/jopvan/Mu-Silicium/Silicium-ACPI/Platforms/Xiaomi/umi/DSDT.wlan-msi-test.aml
++ * Disassembly of /home/jopvan/Mu-Silicium/Silicium-ACPI/Platforms/Xiaomi/umi/DSDT.wlan-noncoherent.aml
+  *
+  * Original Table Header:
+  *     Signature        "DSDT"
+  *     Length           0x00016119 (90393)
+  *     Revision         0x02
+- *     Checksum         0x24
++ *     Checksum         0x25
+  *     OEM ID           "QCOMM "
+  *     OEM Table ID     "SDM8250 "
+  *     OEM Revision     0x00000003 (3)
+@@ -16638,7 +16638,7 @@
+             })
+             Method (_CCA, 0, NotSerialized)  // _CCA: Cache Coherency Attribute
+             {
+-                Return (One)
++                Return (Zero)
+             }
+ 
+             Method (_STA, 0, NotSerialized)  // _STA: Status

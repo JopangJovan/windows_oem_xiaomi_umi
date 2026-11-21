@@ -1,0 +1,165 @@
+--- Silicium-ACPI/Platforms/Xiaomi/umi/IORT.pcie-wlan.dsl	2026-11-20 18:22:47.380130568 +0700
++++ Silicium-ACPI/Platforms/Xiaomi/umi/IORT.pcie-wlan-noncoherent.dsl	2026-11-20 20:13:45.082172776 +0700
+@@ -3,7 +3,7 @@
+  * AML/ASL+ Disassembler version 20241212 (64-bit version)
+  * Copyright (c) 2000 - 2023 Intel Corporation
+  * 
+- * Disassembly of /home/jopvan/Mu-Silicium/Silicium-ACPI/Platforms/Xiaomi/umi/IORT.pcie-wlan.aml
++ * Disassembly of /home/jopvan/Mu-Silicium/Silicium-ACPI/Platforms/Xiaomi/umi/IORT.pcie-wlan-noncoherent.aml
+  *
+  * ACPI Data Table [IORT]
+  *
+@@ -13,7 +13,7 @@
+ [000h 0000 004h]                   Signature : "IORT"    [IO Remapping Table]
+ [004h 0004 004h]                Table Length : 00001364
+ [008h 0008 001h]                    Revision : 00
+-[009h 0009 001h]                    Checksum : A0
++[009h 0009 001h]                    Checksum : A2
+ [00Ah 0010 006h]                      Oem ID : "QCOM  "
+ [010h 0016 008h]                Oem Table ID : "QCOMEDK2"
+ [018h 0024 004h]                Oem Revision : 00008250
+@@ -232,15 +232,15 @@
+ [574h 1396 004h]              Mapping Offset : 00000024
+ 
+ [578h 1400 008h]           Memory Properties : [IORT Memory Access Properties]
+-[578h 1400 004h]             Cache Coherency : 00000001
++[578h 1400 004h]             Cache Coherency : 00000000
+ [57Ch 1404 001h]       Hints (decoded below) : 00
+                                    Transient : 0
+                               Write Allocate : 0
+                                Read Allocate : 0
+                                     Override : 0
+ [57Dh 1405 002h]                    Reserved : 0000
+-[57Fh 1407 001h] Memory Flags (decoded below) : 01
+-                                   Coherency : 1
++[57Fh 1407 001h] Memory Flags (decoded below) : 00
++                                   Coherency : 0
+                             Device Attribute : 0
+                Ensured Coherency of Accesses : 0
+ [580h 1408 004h]               ATS Attribute : 00000000
+@@ -447,7 +447,7 @@
+                Ensured Coherency of Accesses : 0
+ [758h 1880 001h]           Memory Size Limit : 30
+ [759h 1881 00Ah]                 Device Name : "\_SB.GPU0"
+-[763h 1891 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[763h 1891 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* 773h 1907   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [779h 1913 004h]                  Input base : 030A0000
+@@ -822,7 +822,7 @@
+                Ensured Coherency of Accesses : 0
+ [B7Dh 2941 001h]           Memory Size Limit : 24
+ [B7Eh 2942 00Ah]                 Device Name : "\_SB.JPGE"
+-[B88h 2952 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[B88h 2952 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* B98h 2968   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [B9Eh 2974 004h]                  Input base : 02030000
+@@ -861,7 +861,7 @@
+                Ensured Coherency of Accesses : 0
+ [BE2h 3042 001h]           Memory Size Limit : 24
+ [BE3h 3043 00Ah]                 Device Name : "\_SB.ARPC"
+-[BEDh 3053 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[BEDh 3053 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* BFDh 3069   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [C03h 3075 004h]                  Input base : 17030034
+@@ -991,7 +991,7 @@
+                Ensured Coherency of Accesses : 0
+ [D4Bh 3403 001h]           Memory Size Limit : 24
+ [D4Ch 3404 009h]                 Device Name : "\_SB.IPA"
+-[D55h 3413 017h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[D55h 3413 017h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* D65h 3429   7 */                            51 43 4F 4D 45 44 4B                            /* QCOMEDK */\
+ 
+ [D6Ch 3436 004h]                  Input base : 0B030000
+@@ -1051,7 +1051,7 @@
+                Ensured Coherency of Accesses : 0
+ [DECh 3564 001h]           Memory Size Limit : 24
+ [DEDh 3565 00Ah]                 Device Name : "\_SB.USBA"
+-[DF7h 3575 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[DF7h 3575 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* E07h 3591   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [E0Dh 3597 004h]                  Input base : 07030002
+@@ -1083,7 +1083,7 @@
+                Ensured Coherency of Accesses : 0
+ [E3Dh 3645 001h]           Memory Size Limit : 24
+ [E3Eh 3646 00Ah]                 Device Name : "\_SB.QDSS"
+-[E48h 3656 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[E48h 3656 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* E58h 3672   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [E5Eh 3678 004h]                  Input base : 19030000
+@@ -1122,7 +1122,7 @@
+                Ensured Coherency of Accesses : 0
+ [EA2h 3746 001h]           Memory Size Limit : 24
+ [EA3h 3747 00Fh]                 Device Name : "\_SB.ADSP.ADCM"
+-[EB2h 3762 011h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[EB2h 3762 011h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* EC2h 3778   1 */                            51                                              /* Q */\
+ 
+ [EC3h 3779 004h]                  Input base : 07030000
+@@ -1161,7 +1161,7 @@
+                Ensured Coherency of Accesses : 0
+ [F07h 3847 001h]           Memory Size Limit : 24
+ [F08h 3848 00Ah]                 Device Name : "\_SB.SDC2"
+-[F12h 3858 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[F12h 3858 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* F22h 3874   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [F28h 3880 004h]                  Input base : 86030000
+@@ -1200,7 +1200,7 @@
+                Ensured Coherency of Accesses : 0
+ [F6Ch 3948 001h]           Memory Size Limit : 24
+ [F6Dh 3949 00Ah]                 Device Name : "\_SB.UFS0"
+-[F77h 3959 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[F77h 3959 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* F87h 3975   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [F8Dh 3981 004h]                  Input base : 81030000
+@@ -1239,7 +1239,7 @@
+                Ensured Coherency of Accesses : 0
+ [FD1h 4049 001h]           Memory Size Limit : 24
+ [FD2h 4050 00Ah]                 Device Name : "\_SB.URS0"
+-[FDCh 4060 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[FDCh 4060 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* FECh 4076   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [FF2h 4082 004h]                  Input base : 80030000
+@@ -1271,7 +1271,7 @@
+                Ensured Coherency of Accesses : 0
+ [1022h 4130 001h]           Memory Size Limit : 24
+ [1023h 4131 00Ah]                 Device Name : "\_SB.URS1"
+-[102Dh 4141 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[102Dh 4141 016h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* 103Dh 4157   6 */                            51 43 4F 4D 45 44                               /* QCOMED */\
+ 
+ [1043h 4163 004h]                  Input base : 80030001
+@@ -1303,7 +1303,7 @@
+                Ensured Coherency of Accesses : 0
+ [1073h 4211 001h]           Memory Size Limit : 24
+ [1074h 4212 00Fh]                 Device Name : "\_SB.GPU0.AVS0"
+-[1083h 4227 011h]                     Padding : 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
++[1083h 4227 011h]                     Padding : 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20 /* IORTd.....QCOM   */\
+ /* 1093h 4243   1 */                            51                                              /* Q */\
+ 
+ [1094h 4244 004h]                  Input base : 01030000
+@@ -1560,7 +1560,7 @@
+ 
+ Raw Table Data: Length 4964 (0x1364)
+ 
+-    0000: 49 4F 52 54 64 13 00 00 00 A0 51 43 4F 4D 20 20  // IORTd.....QCOM  
++    0000: 49 4F 52 54 64 13 00 00 00 A2 51 43 4F 4D 20 20  // IORTd.....QCOM  
+     0010: 51 43 4F 4D 45 44 4B 32 50 82 00 00 51 43 4F 4D  // QCOMEDK2P...QCOM
+     0020: 01 00 00 00 11 00 00 00 30 00 00 00 00 00 00 00  // ........0.......
+     0030: 03 9C 04 00 00 00 00 00 00 00 00 00 00 00 00 00  // ................
+@@ -1647,7 +1647,7 @@
+     0540: CB 02 00 00 01 00 00 00 CC 02 00 00 01 00 00 00  // ................
+     0550: CD 02 00 00 01 00 00 00 C4 02 00 00 01 00 00 00  // ................
+     0560: C5 02 00 00 01 00 00 00 02 9C 00 00 00 00 00 00  // ................
+-    0570: 06 00 00 00 24 00 00 00 01 00 00 00 00 00 00 01  // ....$...........
++    0570: 06 00 00 00 24 00 00 00 00 00 00 00 00 00 00 00  // ....$...........
+     0580: 00 00 00 00 00 00 00 00 24 00 00 00 00 00 00 00  // ........$.......
+     0590: 00 00 00 00 00 1C 00 00 30 00 00 00 00 00 00 00  // ........0.......
+     05A0: 00 01 00 00 00 00 00 00 01 1C 00 00 30 00 00 00  // ............0...
