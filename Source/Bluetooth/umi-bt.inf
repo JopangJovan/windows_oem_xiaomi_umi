@@ -1,0 +1,62 @@
+; Xiaomi Mi 10 (umi) QCA6390 Bluetooth UART HCI Bus Driver (umi-bt.sys)
+; Enumerates MS_BTHX_BTHMINI PDO for Windows inbox BthMini/BthPort Bluetooth stack.
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGuid   = {4D36E97D-E325-11CE-BFC1-08002BE10318}
+Provider    = %MfgName%
+DriverVer   = 11/21/2026,1.0.0.6
+CatalogFile = umi-bt.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+UmiBt_FwFiles  = 12,umi-bt
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+umi-bt.sys   = 1
+htbtfw20.tlv = 1
+htnv20.bin   = 1
+
+[Manufacturer]
+%MfgName% = UmiBt_Models,NTARM64
+
+[UmiBt_Models.NTARM64]
+%UmiBt.DeviceDesc% = UmiBt_Install, ACPI\UMI0007
+
+[UmiBt_Install.NT]
+CopyFiles = UmiBt_CopyFiles, UmiBt_FwFiles
+
+[UmiBt_CopyFiles]
+umi-bt.sys
+
+[UmiBt_FwFiles]
+htbtfw20.tlv
+htnv20.bin
+
+[UmiBt_Install.NT.HW]
+AddReg = UmiBt_HW_AddReg
+
+[UmiBt_HW_AddReg]
+HKR,,DeviceCharacteristics,0x10001,0x0100
+HKR,,Security,,"D:P(A;;GA;;;BA)(A;;GA;;;SY)(A;;GA;;;LS)"
+
+[UmiBt_Install.NT.Services]
+AddService = UmiBt, 0x00000002, UmiBt_Service_Inst
+
+[UmiBt_Service_Inst]
+DisplayName    = %UmiBt.SvcDesc%
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 1
+ServiceBinary  = %12%\umi-bt.sys
+
+[Strings]
+MfgName          = "Xiaomi Mi 10 Windows Project"
+DiskName         = "Xiaomi Mi 10 Bluetooth Driver Disk"
+UmiBt.DeviceDesc = "Xiaomi Mi 10 QCA6390 Bluetooth UART Bus"
+UmiBt.SvcDesc    = "Xiaomi Mi 10 QCA6390 Bluetooth UART Driver"

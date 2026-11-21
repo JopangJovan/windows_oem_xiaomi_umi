@@ -14,6 +14,7 @@ These driver files are not perfect, typos may exist, feel free to file an issue 
 | **WLAN + Internet** | `Platform/WLAN/` (`UmiWlan.efi` + non-coherent ACPI) | ✅ Working | QCA6390 SMMU Stage-1-disabled CB bypass (`SID 0x1c01`) + `PCI0._CCA=0` / IORT |
 | **Stereo Speakers** | `Drivers/Audio/umi-audio.sys` (v0.1.0.2) | ✅ Working | PortCls WaveRT + ADSP PIL/GLINK/APR + Dual CS35L41 HALO (`ACPI\UMI0005`) |
 | **Battery & Charging** | `Drivers/Battery/umi-battery.sys` (v1.0.0.3) | ✅ Working | KMDF Battery Miniclass + PM8150B Gen4 FG + SMB5 Sink-only (`ACPI\UMI0006`) |
+| **Bluetooth** | `Drivers/Bluetooth/umi-bt.sys` (v1.0.0.6) | ✅ Working | KMDF QCA6390 GENI UART6 + Qualcomm IBS + `MS_BTHX_BTHMINI` (`ACPI\UMI0007`) |
 
 ## Resources
 
