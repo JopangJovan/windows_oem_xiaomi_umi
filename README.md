@@ -15,11 +15,13 @@ These driver files are not perfect, typos may exist, feel free to file an issue 
 | **Stereo Speakers** | `Drivers/Audio/umi-audio.sys` (v0.1.0.2) | ✅ Working | PortCls WaveRT + ADSP PIL/GLINK/APR + Dual CS35L41 HALO (`ACPI\UMI0005`) |
 | **Battery & Charging** | `Drivers/Battery/umi-battery.sys` (v1.0.0.3) | ✅ Working | KMDF Battery Miniclass + PM8150B Gen4 FG + SMB5 Sink-only (`ACPI\UMI0006`) |
 | **Bluetooth** | `Drivers/Bluetooth/umi-bt.sys` (v1.0.0.7) | ✅ Working | KMDF QCA6390 GENI UART6 + Qualcomm IBS + `MS_BTHX_BTHMINI` (`ACPI\UMI0007`) |
-| **Display & Brightness** | `Drivers/Display/umi-display.sys` (v1.0.0.1) | ✅ Working | WDDM KMDOD (UEFI GOP) + SM8250 DSI0 `0x51` AMOLED Brightness (`DXGK_BRIGHTNESS_INTERFACE`) |
+| **Display & Brightness** | `Drivers/Display/umi-display.sys` (v1.0.0.2) | ✅ Working | WDDM KMDOD (UEFI GOP) + SM8250 DSI0 `0x51` AMOLED Brightness + Windows 11 Night Light (`RGB256x3x16` LUT) + 4-way Rotation (`0°/90°/180°/270°`) |
+| **Sensors & Auto-Rotation** | `Drivers/Sensors/umi-sensors.sys` (v1.0.0.8) | ✅ Working | SLPI PIL + FastRPC (`SID 0x0541`) + QMI `SNS_CLIENT_SVC` + HUTRR39 VHF HID (`ACPI\UMI0009`): Accelerometer / Auto-Rotation, Gyrometer, Ambient Light, Barometer |
 
 ## Resources
 
 - **Audio Firmware**: Copy your phone's stock ADSP firmware (`adsp.mdt`, `adsp.b00`..`adsp.b18` from `/dev/block/by-name/modem/image/`) and CS35L41 firmware/calibration (`cs35l41-dsp1-spk-prot-revb2.wmfw`, `cs35l41-dsp1-spk-prot-revb2.bin`, `cs35l41-dsp1-spk-prot-RCV-revb2.bin`, `cs35l41_cal.bin`, `cs35l41_cal_right.bin`) to `C:\Windows\System32\drivers\umi-audio\`.
+- **Sensor Firmware & Registry**: Copy your phone's stock SLPI firmware (`slpi.mdt`, `slpi.b00`..`slpi.b19` from `/dev/block/by-name/modem/image/`) to `C:\Windows\System32\drivers\umi-sensors\` and your phone's `/mnt/vendor/persist/sensors/` + `/vendor/etc/sensors/sns_reg_config` + `/vendor/etc/sensors/config/*.json` to `C:\Windows\System32\drivers\umi-sensors\persist_sensors\`.
 - **USB Charging / Replug**: Switch Windows USB role to Device/Function mode (`UsbFn`):
   ```cmd
   reg add "HKLM\SYSTEM\CurrentControlSet\Control\USB" /v OsDefaultRoleSwitchMode /t REG_DWORD /d 2 /f

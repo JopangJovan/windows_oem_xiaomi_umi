@@ -1,0 +1,53 @@
+; Xiaomi Mi 10 (umi) SLPI / SSC Sensors Driver (umi-sensors.sys)
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System
+ClassGuid   = {4D36E97D-E325-11CE-BFC1-08002BE10318}
+Provider    = %MfgName%
+DriverVer   = 11/22/2026,1.0.0.3
+CatalogFile = umi-sensors.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+umi-sensors.sys = 1
+
+[Manufacturer]
+%MfgName% = UmiSns_Models,NTARM64
+
+[UmiSns_Models.NTARM64]
+%UmiSns.DeviceDesc% = UmiSns_Install, ACPI\UMI0009
+
+[UmiSns_Install.NT]
+CopyFiles = UmiSns_CopyFiles
+
+[UmiSns_CopyFiles]
+umi-sensors.sys
+
+[UmiSns_Install.NT.HW]
+AddReg = UmiSns_VhfFilter
+
+[UmiSns_VhfFilter]
+HKR,,LowerFilters,0x00010008,"vhf"
+
+[UmiSns_Install.NT.Services]
+AddService = UmiSensors, 0x00000002, UmiSns_Service_Inst
+
+[UmiSns_Service_Inst]
+DisplayName    = %UmiSns.SvcDesc%
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 1
+ServiceBinary  = %12%\umi-sensors.sys
+
+[Strings]
+MfgName           = "Xiaomi Mi 10 Windows Project"
+DiskName          = "Xiaomi Mi 10 Sensors Driver Disk"
+UmiSns.DeviceDesc = "Xiaomi Mi 10 SLPI Sensor Hub (Stage 1)"
+UmiSns.SvcDesc    = "Xiaomi Mi 10 SLPI Sensor Hub Driver"

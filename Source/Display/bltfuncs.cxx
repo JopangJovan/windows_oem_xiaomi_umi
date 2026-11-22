@@ -73,6 +73,13 @@ BYTE PixelMask[BITS_PER_BYTE]  = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01
  *
 \**************************************************************************/
 
+extern "C" {
+    extern BOOLEAN g_UmiGammaActive;
+    extern UCHAR   g_UmiGammaR[256];
+    extern UCHAR   g_UmiGammaG[256];
+    extern UCHAR   g_UmiGammaB[256];
+}
+
 VOID CopyBits32_32(
     BLT_INFO* pDst,
     CONST BLT_INFO* pSrc,
@@ -84,6 +91,7 @@ VOID CopyBits32_32(
     NT_ASSERT((pDst->Rotation == D3DKMDT_VPPR_IDENTITY) &&
               (pSrc->Rotation == D3DKMDT_VPPR_IDENTITY));
 
+    BOOLEAN useGamma = g_UmiGammaActive;
     for (UINT iRect = 0; iRect < NumRects; iRect++)
     {
         CONST RECT* pRect = &pRects[iRect];
@@ -101,11 +109,33 @@ VOID CopyBits32_32(
                                 (pRect->top + pSrc->Offset.y) * pSrc->Pitch +
                                 (pRect->left + pSrc->Offset.x) * 4);
 
-        for (UINT i = 0; i < NumRows; ++i)
+        if (!useGamma)
         {
-            RtlCopyMemory(pStartDst, pStartSrc, BytesToCopy);
-            pStartDst += pDst->Pitch;
-            pStartSrc += pSrc->Pitch;
+            for (UINT i = 0; i < NumRows; ++i)
+            {
+                RtlCopyMemory(pStartDst, pStartSrc, BytesToCopy);
+                pStartDst += pDst->Pitch;
+                pStartSrc += pSrc->Pitch;
+            }
+        }
+        else
+        {
+            for (UINT i = 0; i < NumRows; ++i)
+            {
+                BYTE* d = pStartDst;
+                CONST BYTE* s = pStartSrc;
+                for (UINT x = 0; x < NumPixels; ++x)
+                {
+                    d[0] = g_UmiGammaB[s[0]];
+                    d[1] = g_UmiGammaG[s[1]];
+                    d[2] = g_UmiGammaR[s[2]];
+                    d[3] = s[3];
+                    d += 4;
+                    s += 4;
+                }
+                pStartDst += pDst->Pitch;
+                pStartSrc += pSrc->Pitch;
+            }
         }
     }
 }
@@ -258,9 +288,19 @@ VOID CopyBitsGeneric(
                 {
                     if (pSrc->BitsPerPel == 32)
                     {
-                        UINT32* pDstPixelAs32 = (UINT32*)pDstPixel;
-                        UINT32* pSrcPixelAs32 = (UINT32*)pSrcPixel;
-                        *pDstPixelAs32 = *pSrcPixelAs32;
+                        if (!g_UmiGammaActive)
+                        {
+                            UINT32* pDstPixelAs32 = (UINT32*)pDstPixel;
+                            UINT32* pSrcPixelAs32 = (UINT32*)pSrcPixel;
+                            *pDstPixelAs32 = *pSrcPixelAs32;
+                        }
+                        else
+                        {
+                            pDstPixel[0] = g_UmiGammaB[pSrcPixel[0]];
+                            pDstPixel[1] = g_UmiGammaG[pSrcPixel[1]];
+                            pDstPixel[2] = g_UmiGammaR[pSrcPixel[2]];
+                            pDstPixel[3] = pSrcPixel[3];
+                        }
                     }
                     else if (pSrc->BitsPerPel == 16)
                     {

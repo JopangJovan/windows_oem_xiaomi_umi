@@ -6,7 +6,7 @@
   VERSION_STRING                 = 1.0
 
 [Binaries]
-  ASL|DSDT.wlan-noncoherent.aml
+  ASL|DSDT.display-brightness.aml
   ASL|Common/SSDT.aml
   ASL|APIC.pcie-wlan.aml
   ASL|Kona/CSRT.aml
@@ -22,3 +22,4 @@
   ASL|umi-audio.aml
   ASL|umi-battery.aml
   ASL|umi-bt.aml
+  ASL|umi-sensors.aml

@@ -295,6 +295,7 @@ NTSTATUS BASIC_DISPLAY_DRIVER::QueryAdapterInfo(_In_ CONST DXGKARG_QUERYADAPTERI
 
             pDriverCaps->SupportNonVGA = TRUE;
             pDriverCaps->SupportSmoothRotation = TRUE;
+            pDriverCaps->GammaRampCaps.Gamma_Rgb256x3x16 = 1;
 
             return STATUS_SUCCESS;
         }

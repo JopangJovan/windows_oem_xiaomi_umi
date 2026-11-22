@@ -368,10 +368,9 @@ NTSTATUS BASIC_DISPLAY_DRIVER::EnumVidPnCofuncModality(_In_ CONST DXGKARG_ENUMVI
             if (pVidPnPresentPath->ContentTransformation.Rotation == D3DKMDT_VPPR_UNPINNED)
             {
                 LocalVidPnPresentPath.ContentTransformation.RotationSupport.Identity = 1;
-                // Sample supports only Rotate90
                 LocalVidPnPresentPath.ContentTransformation.RotationSupport.Rotate90 = 1;
-                LocalVidPnPresentPath.ContentTransformation.RotationSupport.Rotate180 = 0;
-                LocalVidPnPresentPath.ContentTransformation.RotationSupport.Rotate270 = 0;
+                LocalVidPnPresentPath.ContentTransformation.RotationSupport.Rotate180 = 1;
+                LocalVidPnPresentPath.ContentTransformation.RotationSupport.Rotate270 = 1;
 
                 // Since clone is not supported, should not support path-independent rotations
                 LocalVidPnPresentPath.ContentTransformation.RotationSupport.Offset0 = 1;
@@ -684,6 +683,41 @@ CommitVidPnExit:
     return Status;
 }
 
+extern "C" {
+    BOOLEAN g_UmiGammaActive = FALSE;
+    UCHAR   g_UmiGammaR[256];
+    UCHAR   g_UmiGammaG[256];
+    UCHAR   g_UmiGammaB[256];
+}
+
+static VOID UmiApplyGammaRamp(CONST D3DKMDT_GAMMA_RAMP* pRamp)
+{
+    if (!pRamp || pRamp->Type == D3DDDI_GAMMARAMP_DEFAULT || !pRamp->Data.pRgb256x3x16)
+    {
+        g_UmiGammaActive = FALSE;
+        return;
+    }
+    if (pRamp->Type == D3DDDI_GAMMARAMP_RGB256x3x16)
+    {
+        CONST D3DDDI_GAMMA_RAMP_RGB256x3x16* pLut = pRamp->Data.pRgb256x3x16;
+        BOOLEAN isIdentity = TRUE;
+        for (UINT i = 0; i < 256; i++)
+        {
+            UCHAR r = (UCHAR)(pLut->Red[i] >> 8);
+            UCHAR g = (UCHAR)(pLut->Green[i] >> 8);
+            UCHAR b = (UCHAR)(pLut->Blue[i] >> 8);
+            g_UmiGammaR[i] = r;
+            g_UmiGammaG[i] = g;
+            g_UmiGammaB[i] = b;
+            if (r != (UCHAR)i || g != (UCHAR)i || b != (UCHAR)i)
+            {
+                isIdentity = FALSE;
+            }
+        }
+        g_UmiGammaActive = !isIdentity;
+    }
+}
+
 NTSTATUS BASIC_DISPLAY_DRIVER::UpdateActiveVidPnPresentPath(_In_ CONST DXGKARG_UPDATEACTIVEVIDPNPRESENTPATH* CONST pUpdateActiveVidPnPresentPath)
 {
     PAGED_CODE();
@@ -696,10 +730,11 @@ NTSTATUS BASIC_DISPLAY_DRIVER::UpdateActiveVidPnPresentPath(_In_ CONST DXGKARG_U
         return Status;
     }
 
-    // Mark the next present as fullscreen to make sure the full rotation comes through
+    // Mark the next present as fullscreen to make sure the full rotation/gamma comes through
     m_CurrentModes[pUpdateActiveVidPnPresentPath->VidPnPresentPathInfo.VidPnSourceId].Flags.FullscreenPresent = TRUE;
 
     m_CurrentModes[pUpdateActiveVidPnPresentPath->VidPnPresentPathInfo.VidPnSourceId].Rotation = pUpdateActiveVidPnPresentPath->VidPnPresentPathInfo.ContentTransformation.Rotation;
+    UmiApplyGammaRamp(&(pUpdateActiveVidPnPresentPath->VidPnPresentPathInfo.GammaRamp));
 
     return STATUS_SUCCESS;
 }
@@ -720,6 +755,7 @@ NTSTATUS BASIC_DISPLAY_DRIVER::SetSourceModeAndPath(CONST D3DKMDT_VIDPN_SOURCE_M
     pCurrentBddMode->SrcModeWidth = pSourceMode->Format.Graphics.PrimSurfSize.cx;
     pCurrentBddMode->SrcModeHeight = pSourceMode->Format.Graphics.PrimSurfSize.cy;
     pCurrentBddMode->Rotation = pPath->ContentTransformation.Rotation;
+    UmiApplyGammaRamp(&(pPath->GammaRamp));
 
 
     if (!pCurrentBddMode->Flags.DoNotMapOrUnmap)
@@ -761,9 +797,10 @@ NTSTATUS BASIC_DISPLAY_DRIVER::IsVidPnPathFieldsValid(CONST D3DKMDT_VIDPN_PRESEN
                         pPath->VidPnTargetId, MAX_CHILDREN);
         return STATUS_GRAPHICS_INVALID_VIDEO_PRESENT_TARGET;
     }
-    else if (pPath->GammaRamp.Type != D3DDDI_GAMMARAMP_DEFAULT)
+    else if ((pPath->GammaRamp.Type != D3DDDI_GAMMARAMP_DEFAULT) &&
+             (pPath->GammaRamp.Type != D3DDDI_GAMMARAMP_RGB256x3x16))
     {
-        BDD_LOG_ERROR1("pPath contains a gamma ramp (0x%I64x)", pPath->GammaRamp.Type);
+        BDD_LOG_ERROR1("pPath contains an unsupported gamma ramp (0x%I64x)", pPath->GammaRamp.Type);
         return STATUS_GRAPHICS_GAMMA_RAMP_NOT_SUPPORTED;
     }
     else if ((pPath->ContentTransformation.Scaling != D3DKMDT_VPPS_IDENTITY) &&
@@ -776,6 +813,8 @@ NTSTATUS BASIC_DISPLAY_DRIVER::IsVidPnPathFieldsValid(CONST D3DKMDT_VIDPN_PRESEN
     }
     else if ((pPath->ContentTransformation.Rotation != D3DKMDT_VPPR_IDENTITY) &&
              (pPath->ContentTransformation.Rotation != D3DKMDT_VPPR_ROTATE90) &&
+             (pPath->ContentTransformation.Rotation != D3DKMDT_VPPR_ROTATE180) &&
+             (pPath->ContentTransformation.Rotation != D3DKMDT_VPPR_ROTATE270) &&
              (pPath->ContentTransformation.Rotation != D3DKMDT_VPPR_NOTSPECIFIED) &&
              (pPath->ContentTransformation.Rotation != D3DKMDT_VPPR_UNINITIALIZED))
     {
