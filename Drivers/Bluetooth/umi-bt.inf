@@ -6,7 +6,7 @@ Signature   = "$WINDOWS NT$"
 Class       = System
 ClassGuid   = {4D36E97D-E325-11CE-BFC1-08002BE10318}
 Provider    = %MfgName%
-DriverVer   = 11/21/2026,1.0.0.6
+DriverVer   = 11/22/2026,1.0.0.7
 CatalogFile = umi-bt.cat
 PnpLockdown = 1
 

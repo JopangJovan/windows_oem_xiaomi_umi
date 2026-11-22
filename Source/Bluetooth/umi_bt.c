@@ -1201,11 +1201,15 @@ static VOID EvtWriteHci(WDFQUEUE Queue, WDFREQUEST Request, size_t OutputBufferL
     KeWaitForSingleObject(&fdo->TxMutex, Executive, KernelMode, FALSE, NULL);
     if (fdo->ChipSleeping) {
         u8 wake = HCI_IBS_WAKE_IND;
-        KeClearEvent(&fdo->WakeAckEvent);
-        uart_tx_bytes(fdo, &wake, 1);
         LARGE_INTEGER timeout;
-        timeout.QuadPart = -50LL * 10000LL; /* 50ms max wait for 0xFC WAKE_ACK */
-        KeWaitForSingleObject(&fdo->WakeAckEvent, Executive, KernelMode, FALSE, &timeout);
+        timeout.QuadPart = -30LL * 10000LL; /* 30ms max wait for 0xFC WAKE_ACK */
+        for (u32 tries = 0; tries < 2; tries++) {
+            KeClearEvent(&fdo->WakeAckEvent);
+            uart_tx_bytes(fdo, &wake, 1);
+            if (KeWaitForSingleObject(&fdo->WakeAckEvent, Executive, KernelMode, FALSE, &timeout) == STATUS_SUCCESS) {
+                break;
+            }
+        }
         fdo->ChipSleeping = FALSE;
     }
     BOOLEAN ok = uart_tx_bytes(fdo, tx_buf, total);
@@ -1380,16 +1384,16 @@ static NTSTATUS umi_bt_create_child_pdo(PFDO_CONTEXT fdo)
     WDF_DEVICE_POWER_CAPABILITIES pwr;
     WDF_DEVICE_POWER_CAPABILITIES_INIT(&pwr);
     pwr.DeviceD1 = WdfFalse;
-    pwr.DeviceD2 = WdfTrue;
+    pwr.DeviceD2 = WdfFalse;
     pwr.WakeFromD0 = WdfFalse;
     pwr.WakeFromD1 = WdfFalse;
     pwr.WakeFromD2 = WdfFalse;
     pwr.WakeFromD3 = WdfFalse;
     pwr.DeviceWake = PowerDeviceUnspecified;
     pwr.DeviceState[PowerSystemWorking]   = PowerDeviceD0;
-    pwr.DeviceState[PowerSystemSleeping1] = PowerDeviceD2;
-    pwr.DeviceState[PowerSystemSleeping2] = PowerDeviceD2;
-    pwr.DeviceState[PowerSystemSleeping3] = PowerDeviceD2;
+    pwr.DeviceState[PowerSystemSleeping1] = PowerDeviceD0;
+    pwr.DeviceState[PowerSystemSleeping2] = PowerDeviceD0;
+    pwr.DeviceState[PowerSystemSleeping3] = PowerDeviceD0;
     pwr.DeviceState[PowerSystemHibernate] = PowerDeviceD3;
     pwr.DeviceState[PowerSystemShutdown]  = PowerDeviceD3;
     WdfDeviceSetPowerCapabilities(pdo, &pwr);
@@ -1410,7 +1414,7 @@ static NTSTATUS EvtDevicePrepareHardware(WDFDEVICE Device, WDFCMRESLIST Resource
     PHYSICAL_ADDRESS pa;
 
     bt_log_init();
-    bt_log("=== umi-bt.sys v1.0.0.6 PrepareHardware ===");
+    bt_log("=== umi-bt.sys v1.0.0.7 PrepareHardware ===");
 
     pa.QuadPart = (LONGLONG)GCC_PHYS_BASE;
     fdo->Gcc = (volatile u8 *)MmMapIoSpace(pa, GCC_SIZE, MmNonCached);
@@ -1459,12 +1463,13 @@ static NTSTATUS EvtDeviceD0Entry(WDFDEVICE Device, WDF_POWER_DEVICE_STATE Previo
     if (fdo->Uart && fdo->HwReady) {
         fdo->RxHead = fdo->RxTail = 0;
         fdo->FrameState = 0;
+        fdo->ChipSleeping = TRUE; /* Re-sync Qualcomm IBS wake on first TX after D0Entry */
         fdo->IrqRunning = TRUE;
         wr32(fdo->Uart, SE_GENI_S_IRQ_CLEAR, 0xFFFFFFFFu);
         wr32(fdo->Uart, SE_GENI_S_IRQ_EN, S_RX_FIFO_WATERMARK_EN | S_RX_FIFO_LAST_EN);
         uart_start_rx(fdo);
         WdfTimerStart(fdo->RxPollTimer, WDF_REL_TIMEOUT_IN_MS(1));
-        bt_log("D0Entry: UART6 RX IRQ + 1ms poll timer enabled");
+        bt_log("D0Entry: UART6 RX IRQ + 1ms poll timer enabled (prev=%u)", (u32)PreviousState);
     }
     return STATUS_SUCCESS;
 }
