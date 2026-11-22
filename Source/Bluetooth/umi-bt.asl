@@ -1,5 +1,14 @@
-DefinitionBlock ("", "SSDT", 2, "XIAOMI", "UMIBT   ", 0x00000001)
+DefinitionBlock ("", "SSDT", 2, "XIAOMI", "UMIBT   ", 0x00000002)
 {
+    External (\_SB.UAR7, DeviceObj)
+    Scope (\_SB.UAR7)
+    {
+        Method (_STA, 0, NotSerialized)
+        {
+            Return (Zero)
+        }
+    }
+
     Scope (\_SB)
     {
         Device (UMBT)
