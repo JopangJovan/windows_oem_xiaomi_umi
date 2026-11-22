@@ -1,0 +1,49 @@
+; Xiaomi Mi 10 (umi) AMOLED Display-Only Driver with Native Brightness Control (umi-display.sys)
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Display
+ClassGuid   = {4D36E968-E325-11CE-BFC1-08002BE10318}
+Provider    = %MfgName%
+DriverVer   = 11/22/2026,1.0.0.1
+CatalogFile = umi-display.cat
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 12
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+umi-display.sys = 1
+
+[Manufacturer]
+%MfgName% = UmiDisp_Models,NTARM64
+
+[UmiDisp_Models.NTARM64]
+%UmiDisp.DeviceDesc% = UmiDisp_Install, ACPI\VEN_QCOM&DEV_253A&SUBSYS_MTP08250
+%UmiDisp.DeviceDesc% = UmiDisp_Install, ACPI\VEN_QCOM&DEV_253A
+
+[UmiDisp_Install.NT]
+FeatureScore = F9
+CopyFiles    = UmiDisp_CopyFiles
+
+[UmiDisp_CopyFiles]
+umi-display.sys
+
+[UmiDisp_Install.NT.Services]
+AddService = UmiDisplay, 0x00000002, UmiDisp_Service_Inst
+
+[UmiDisp_Service_Inst]
+DisplayName    = %UmiDisp.SvcDesc%
+ServiceType    = 1
+StartType      = 3
+ErrorControl   = 1
+ServiceBinary  = %12%\umi-display.sys
+
+[Strings]
+MfgName            = "Xiaomi Mi 10 Windows Project"
+DiskName           = "Xiaomi Mi 10 Display Driver Disk"
+UmiDisp.DeviceDesc = "Xiaomi Mi 10 AMOLED Display (Brightness Enabled)"
+UmiDisp.SvcDesc    = "Xiaomi Mi 10 AMOLED Display-Only Driver"

@@ -15,6 +15,7 @@ These driver files are not perfect, typos may exist, feel free to file an issue 
 | **Stereo Speakers** | `Drivers/Audio/umi-audio.sys` (v0.1.0.2) | ✅ Working | PortCls WaveRT + ADSP PIL/GLINK/APR + Dual CS35L41 HALO (`ACPI\UMI0005`) |
 | **Battery & Charging** | `Drivers/Battery/umi-battery.sys` (v1.0.0.3) | ✅ Working | KMDF Battery Miniclass + PM8150B Gen4 FG + SMB5 Sink-only (`ACPI\UMI0006`) |
 | **Bluetooth** | `Drivers/Bluetooth/umi-bt.sys` (v1.0.0.7) | ✅ Working | KMDF QCA6390 GENI UART6 + Qualcomm IBS + `MS_BTHX_BTHMINI` (`ACPI\UMI0007`) |
+| **Display & Brightness** | `Drivers/Display/umi-display.sys` (v1.0.0.1) | ✅ Working | WDDM KMDOD (UEFI GOP) + SM8250 DSI0 `0x51` AMOLED Brightness (`DXGK_BRIGHTNESS_INTERFACE`) |
 
 ## Resources
 
