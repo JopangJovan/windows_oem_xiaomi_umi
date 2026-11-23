@@ -3,17 +3,17 @@
 #include <wdf.h>
 #include <vhf.h>
 #include "pmic-buttons.h"
-/* Consumer volume increment/decrement; System Control power-down. */
+/* Consumer volume increment/decrement (ID 1); Native System Control Power-Down (ID 2). */
 static UCHAR descriptor[]={
  0x05,0x0c,0x09,1,0xa1,1,0x85,1,0x15,0,0x25,1,
  0x09,0xe9,0x09,0xea,0x75,1,0x95,2,0x81,2,
  0x75,6,0x95,1,0x81,3,0xc0,
  0x05,1,0x09,0x80,0xa1,1,0x85,2,0x09,0x81,
  0x15,0,0x25,1,0x75,1,0x95,1,0x81,2,
- 0x75,7,0x81,3,0xc0};
+ 0x75,7,0x95,1,0x81,3,0xc0};
 typedef struct {
- UMI_BUTTON_BUS bus; VHFHANDLE vhf; WDFTIMER timer; volatile LONG running;
- UCHAR stable,candidate,armed,seenOr; BOOLEAN initial; ULONGLONG changed;
+ UMI_BUTTON_BUS bus; VHFHANDLE vhf; WDFTIMER timer; PVOID sysState; volatile LONG running;
+ UCHAR stable,candidate,armed,seenOr; BOOLEAN initial; ULONGLONG changed,lastPwr;
  ULONG errors,ticks,sends; NTSTATUS reportStatus,lastSampleStatus,lastS,lastT;
 } CTX;
 WDF_DECLARE_CONTEXT_TYPE_WITH_NAME(CTX,GetCtx);
@@ -35,11 +35,15 @@ static void Send(CTX*c,UCHAR mask){
   HID_XFER_PACKET p={volume,sizeof(volume),1};s=VhfReadReportSubmit(c->vhf,&p);
  }
  if((diff&1)&&(mask&1)){
-  /* Atomic press+release pulse on power press so physical button release does not wake display back up */
-  UCHAR pdown[2]={2,1},pup[2]={2,0};
-  HID_XFER_PACKET p={pdown,sizeof(pdown),2};t=VhfReadReportSubmit(c->vhf,&p);
-  KeStallExecutionProcessor(5000);
-  p.reportBuffer=pup;VhfReadReportSubmit(c->vhf,&p);
+  ULONGLONG now=KeQueryInterruptTime();
+  if(now-c->lastPwr>=5000000ULL){ /* 500ms cooldown against mechanical switch bounce */
+   c->lastPwr=now;
+   /* Atomic press+release pulse on power press so physical button release does not wake display back up */
+   UCHAR pdown[2]={2,1},pup[2]={2,0};
+   HID_XFER_PACKET p={pdown,sizeof(pdown),2};t=VhfReadReportSubmit(c->vhf,&p);
+   KeStallExecutionProcessor(5000);
+   p.reportBuffer=pup;VhfReadReportSubmit(c->vhf,&p);
+  }
  }
  c->sends++;c->lastS=s;c->lastT=t;
  c->reportStatus=NT_SUCCESS(s)?t:s;
@@ -82,11 +86,13 @@ EVT_WDF_DEVICE_RELEASE_HARDWARE Release;
 NTSTATUS Release(WDFDEVICE d,WDFCMRESLIST r){UNREFERENCED_PARAMETER(r);Unmap(GetCtx(d));return STATUS_SUCCESS;}
 EVT_WDF_DEVICE_D0_ENTRY Enter;
 NTSTATUS Enter(WDFDEVICE d,WDF_POWER_DEVICE_STATE prev){UNREFERENCED_PARAMETER(prev);CTX*c=GetCtx(d);NTSTATUS s=ButtonInitialize(&c->bus);if(!NT_SUCCESS(s))return s;
+ /* Hold ES_SYSTEM_REQUIRED (without ES_DISPLAY_REQUIRED) so Modern Standby turns off the AMOLED cleanly on Power press without entering DRIPS/S0ix (which hard-reboots SM8250 without qcpep) */
+ if(!c->sysState)c->sysState=PoRegisterSystemState(NULL,ES_SYSTEM_REQUIRED|ES_CONTINUOUS);
  c->initial=FALSE;c->stable=0;c->errors=0;InterlockedExchange(&c->running,TRUE);WdfTimerStart(c->timer,WDF_REL_TIMEOUT_IN_MS(10));return STATUS_SUCCESS;}
 EVT_WDF_DEVICE_D0_EXIT Exit;
 NTSTATUS Exit(WDFDEVICE d,WDF_POWER_DEVICE_STATE next){UNREFERENCED_PARAMETER(next);CTX*c=GetCtx(d);InterlockedExchange(&c->running,FALSE);WdfTimerStop(c->timer,TRUE);Send(c,0);return STATUS_SUCCESS;}
 EVT_WDF_OBJECT_CONTEXT_CLEANUP Cleanup;
-void Cleanup(WDFOBJECT d){CTX*c=GetCtx(d);if(c->vhf){VhfDelete(c->vhf,TRUE);c->vhf=NULL;}}
+void Cleanup(WDFOBJECT d){CTX*c=GetCtx(d);if(c->sysState){PoUnregisterSystemState(c->sysState);c->sysState=NULL;}if(c->vhf){VhfDelete(c->vhf,TRUE);c->vhf=NULL;}}
 EVT_WDF_DRIVER_DEVICE_ADD Add;
 NTSTATUS Add(WDFDRIVER driver,PWDFDEVICE_INIT init){UNREFERENCED_PARAMETER(driver);
  WDF_PNPPOWER_EVENT_CALLBACKS cb;WDF_PNPPOWER_EVENT_CALLBACKS_INIT(&cb);cb.EvtDevicePrepareHardware=Prepare;cb.EvtDeviceReleaseHardware=Release;cb.EvtDeviceD0Entry=Enter;cb.EvtDeviceD0Exit=Exit;WdfDeviceInitSetPnpPowerEventCallbacks(init,&cb);

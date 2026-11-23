@@ -3,7 +3,7 @@ Signature="$WINDOWS NT$"
 Class=Battery
 ClassGuid={72631e54-78a4-11d0-bcf7-00aa00b7b32a}
 Provider=%Provider%
-DriverVer=11/21/2026,1.0.0.3
+DriverVer=11/23/2026,1.0.0.8
 CatalogFile=umi-battery.cat
 PnpLockdown=1
 
