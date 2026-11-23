@@ -15,7 +15,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$g = [Windows.Devices.Sensors.Gyrometer,Windows.Devices.Sensors,ContentType=WindowsRuntime]::GetDefault();" ^
   "if ($g) { $r = $g.GetCurrentReading(); $out += ('Gyrometer:     X=' + [math]::Round($r.AngularVelocityX,3) + ' Y=' + [math]::Round($r.AngularVelocityY,3) + ' Z=' + [math]::Round($r.AngularVelocityZ,3)) } else { $out += 'Gyrometer:     NOT FOUND' };" ^
   "$m = [Windows.Devices.Sensors.Magnetometer,Windows.Devices.Sensors,ContentType=WindowsRuntime]::GetDefault();" ^
-  "if ($m) { $r = $m.GetCurrentReading(); $out += ('Magnetometer:  X=' + [math]::Round($r.MagneticFieldX,2) + ' Y=' + [math]::Round($r.MagneticFieldY,2) + ' Z=' + [math]::Round($r.MagneticFieldZ,2)) } else { $out += 'Magnetometer:  NOT FOUND' };" ^
+  "if ($m) { $r = $m.GetCurrentReading(); $out += ('Magnetometer:  X=' + [math]::Round($r.MagneticFieldX,2) + ' Y=' + [math]::Round($r.MagneticFieldY,2) + ' Z=' + [math]::Round($r.MagneticFieldZ,2) + ' uT') } else { $out += 'Magnetometer:  NOT FOUND' };" ^
+  "$c = [Windows.Devices.Sensors.Compass,Windows.Devices.Sensors,ContentType=WindowsRuntime]::GetDefault();" ^
+  "if ($c) { $r = $c.GetCurrentReading(); $out += ('Compass:       ' + [math]::Round($r.HeadingMagneticNorth,1) + ' deg') } else { $out += 'Compass:       NOT FOUND' };" ^
   "$l = [Windows.Devices.Sensors.LightSensor,Windows.Devices.Sensors,ContentType=WindowsRuntime]::GetDefault();" ^
   "if ($l) { $r = $l.GetCurrentReading(); $out += ('LightSensor:   ' + [math]::Round($r.IlluminanceInLux,1) + ' lux') } else { $out += 'LightSensor:   NOT FOUND' };" ^
   "$b = [Windows.Devices.Sensors.Barometer,Windows.Devices.Sensors,ContentType=WindowsRuntime]::GetDefault();" ^

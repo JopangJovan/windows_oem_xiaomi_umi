@@ -155,7 +155,7 @@ static NTSTATUS EvtDevicePrepareHardware(WDFDEVICE Device, WDFCMRESLIST Raw, WDF
     UNREFERENCED_PARAMETER(Translated);
 
     umi_log_init();
-    umi_log("=== umi-sensors.sys v1.0.0.8 PrepareHardware (SLPI + FastRPC + QMI + 6-Sensor HUTRR39 VHF HID) ===\n");
+    umi_log("=== umi-sensors.sys v1.0.0.14 PrepareHardware (SLPI + FastRPC + QMI + 6-Sensor HUTRR39 + Mag & Compass) ===\n");
 
     umi_hid_init(Device);
 

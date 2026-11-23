@@ -27,11 +27,20 @@ static void WriteDiag(CTX*c){
  }
 }
 static void Send(CTX*c,UCHAR mask){
- /* Report IDs are defined in descriptor, so buffer[0] must be the Report ID. */
- UCHAR volume[2]={1,(UCHAR)((mask>>1)&3)},power[2]={2,(UCHAR)(mask&1)};
- HID_XFER_PACKET p={volume,sizeof(volume),1};NTSTATUS s=VhfReadReportSubmit(c->vhf,&p);
- p.reportBuffer=power;p.reportBufferLen=sizeof(power);p.reportId=2;
- NTSTATUS t=VhfReadReportSubmit(c->vhf,&p);
+ /* Only submit the HID collection whose bits actually changed (prevents spurious volume report from waking display on power release) */
+ UCHAR diff=mask^c->stable;
+ NTSTATUS s=STATUS_SUCCESS,t=STATUS_SUCCESS;
+ if(diff&6){
+  UCHAR volume[2]={1,(UCHAR)((mask>>1)&3)};
+  HID_XFER_PACKET p={volume,sizeof(volume),1};s=VhfReadReportSubmit(c->vhf,&p);
+ }
+ if((diff&1)&&(mask&1)){
+  /* Atomic press+release pulse on power press so physical button release does not wake display back up */
+  UCHAR pdown[2]={2,1},pup[2]={2,0};
+  HID_XFER_PACKET p={pdown,sizeof(pdown),2};t=VhfReadReportSubmit(c->vhf,&p);
+  KeStallExecutionProcessor(5000);
+  p.reportBuffer=pup;VhfReadReportSubmit(c->vhf,&p);
+ }
  c->sends++;c->lastS=s;c->lastT=t;
  c->reportStatus=NT_SUCCESS(s)?t:s;
 }

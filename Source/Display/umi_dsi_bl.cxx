@@ -46,6 +46,7 @@ static u32          g_DmaPhys = 0;
 static UCHAR        g_CurrentPct = 70;
 static KMUTEX       g_BlLock;
 static BOOLEAN      g_BlInited = FALSE;
+static BOOLEAN      g_IsBlanked = FALSE;
 
 static __inline u32 dsi_rd32(u32 off)
 {
@@ -134,6 +135,19 @@ extern "C" VOID UmiBlInit(VOID)
     UmiDsiSendDcs51((70u * UMI_BL_MAX_LEVEL) / 100u);
 }
 
+extern "C" VOID UmiBlSetBlank(BOOLEAN Blank)
+{
+    if (!g_BlInited) return;
+    g_IsBlanked = Blank;
+    if (Blank) {
+        UmiDsiSendDcs51(0u);
+    } else {
+        u32 level = (g_CurrentPct == 0) ? 10u : (((u32)g_CurrentPct * UMI_BL_MAX_LEVEL) / 100u);
+        if (level < 10u) level = 10u;
+        UmiDsiSendDcs51(level);
+    }
+}
+
 extern "C" VOID UmiBlCleanup(VOID)
 {
     if (!g_BlInited) return;
@@ -171,7 +185,9 @@ static NTSTATUS UmiBlSet(_In_ PVOID Context, _In_ UCHAR Brightness)
     u32 level = (Brightness == 0) ? 10u : (((u32)Brightness * UMI_BL_MAX_LEVEL) / 100u);
     if (level < 10u) level = 10u;
     g_CurrentPct = Brightness;
-    UmiDsiSendDcs51(level);
+    if (!g_IsBlanked) {
+        UmiDsiSendDcs51(level);
+    }
     return STATUS_SUCCESS;
 }
 

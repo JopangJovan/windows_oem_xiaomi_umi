@@ -133,6 +133,8 @@ NTSTATUS BASIC_DISPLAY_DRIVER::DispatchIoRequest(_In_  ULONG                 Vid
     return STATUS_NOT_IMPLEMENTED;
 }
 
+extern "C" VOID UmiBlSetBlank(BOOLEAN Blank);
+
 NTSTATUS BASIC_DISPLAY_DRIVER::SetPowerState(_In_  ULONG              HardwareUid,
                                              _In_  DEVICE_POWER_STATE DevicePowerState,
                                              _In_  POWER_ACTION       ActionType)
@@ -166,8 +168,7 @@ NTSTATUS BASIC_DISPLAY_DRIVER::SetPowerState(_In_  ULONG              HardwareUi
     }
     else
     {
-        // TODO: This is where the specified monitor should be powered up/down
-        NOTHING;
+        UmiBlSetBlank(DevicePowerState != PowerDeviceD0);
         return STATUS_SUCCESS;
     }
 }
